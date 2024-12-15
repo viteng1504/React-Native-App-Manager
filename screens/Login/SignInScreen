@@ -1,0 +1,33 @@
+import { useContext, useState } from "react";
+import { Alert, Text, View } from "react-native";
+import LoadingOverlay from "../../components/UI/LoadingOverlay";
+
+import AuthContent from "../../components/Auth/AuthContent";
+import { signIn } from "../../components/Util/Auth";
+import { AuthContext } from "../../store/auth-context";
+
+function SignInScreen() {
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+  const authCtx = useContext(AuthContext);
+
+  async function signinHandler({ email, password }) {
+    setIsAuthenticating(true);
+    try {
+      const token = await signIn(email, password);
+      // await signIn(email, password);
+      authCtx.authenticate(token);
+    } catch (error) {
+      Alert.alert("Authentication failed!", "Could not log you in");
+    }
+    setIsAuthenticating(false);
+  }
+
+  if (isAuthenticating) {
+    return <LoadingOverlay message="Logging you in ..." />;
+  }
+
+  return <AuthContent isLogin onAuthenticate={signinHandler}></AuthContent>;
+}
+
+export default SignInScreen;
